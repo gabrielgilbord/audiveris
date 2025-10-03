@@ -17,28 +17,49 @@ set -e
 
 echo "🔧 Descargando librerías JavaCPP específicas..."
 
-# URLs de las librerías JavaCPP "platform" alineadas con el sistema
-# Leptonica 1.82.0 (SONAME .5) y Tesseract 5.3.0
-LEPTONICA_URL="https://repo1.maven.org/maven2/org/bytedeco/leptonica-platform/1.83.0-1.5.9/leptonica-platform-1.83.0-1.5.9-linux-x86_64.jar"
-TESSERACT_URL="https://repo1.maven.org/maven2/org/bytedeco/tesseract-platform/5.3.1-1.5.9/tesseract-platform-5.3.1-1.5.9-linux-x86_64.jar"
+# Candidatos de URLs para Leptonica y Tesseract (probar en cascada)
+LEPTONICA_CANDIDATES=(
+  "https://repo1.maven.org/maven2/org/bytedeco/leptonica-platform/1.83.1-1.5.9/leptonica-platform-1.83.1-1.5.9-linux-x86_64.jar"
+  "https://repo1.maven.org/maven2/org/bytedeco/leptonica-platform/1.83.0-1.5.9/leptonica-platform-1.83.0-1.5.9-linux-x86_64.jar"
+  "https://repo1.maven.org/maven2/org/bytedeco/leptonica-platform/1.82.0-1.5.9/leptonica-platform-1.82.0-1.5.9-linux-x86_64.jar"
+  "https://repo1.maven.org/maven2/org/bytedeco/leptonica/1.83.0-1.5.9/leptonica-1.83.0-1.5.9-linux-x86_64.jar"
+  "https://repo1.maven.org/maven2/org/bytedeco/leptonica/1.82.0-1.5.9/leptonica-1.82.0-1.5.9-linux-x86_64.jar"
+)
+
+TESSERACT_CANDIDATES=(
+  "https://repo1.maven.org/maven2/org/bytedeco/tesseract-platform/5.3.1-1.5.9/tesseract-platform-5.3.1-1.5.9-linux-x86_64.jar"
+  "https://repo1.maven.org/maven2/org/bytedeco/tesseract-platform/5.3.0-1.5.9/tesseract-platform-5.3.0-1.5.9-linux-x86_64.jar"
+  "https://repo1.maven.org/maven2/org/bytedeco/tesseract/5.3.1-1.5.9/tesseract-5.3.1-1.5.9-linux-x86_64.jar"
+  "https://repo1.maven.org/maven2/org/bytedeco/tesseract/5.3.0-1.5.9/tesseract-5.3.0-1.5.9-linux-x86_64.jar"
+)
 
 # Crear directorio temporal
 TEMP_DIR="/tmp/javacpp-temp"
 mkdir -p "$TEMP_DIR"
 
-echo "📥 Descargando Leptonica JAR (curl con reintentos)..."
-curl -fsSL --retry 5 --retry-delay 2 "$LEPTONICA_URL" -o "$TEMP_DIR/leptonica.jar" || {
-  echo "⚠️ Falló curl Leptonica, probando con wget...";
-  wget -q "$LEPTONICA_URL" -O "$TEMP_DIR/leptonica.jar" || { echo "❌ Error descargando Leptonica"; exit 1; };
-}
-if [ ! -s "$TEMP_DIR/leptonica.jar" ]; then echo "❌ Leptonica JAR vacío"; exit 1; fi
+echo "📥 Descargando Leptonica JAR (con fallback de versiones)..."
+LEPTONICA_OK=0
+for URL in "${LEPTONICA_CANDIDATES[@]}"; do
+  echo "➡️ Intentando: $URL"
+  if curl -fsSL --retry 5 --retry-delay 2 "$URL" -o "$TEMP_DIR/leptonica.jar"; then
+    if [ -s "$TEMP_DIR/leptonica.jar" ]; then LEPTONICA_OK=1; echo "✅ Descargado Leptonica"; break; fi
+  fi
+  echo "⚠️ Falló curl, probando wget..."
+  if wget -q "$URL" -O "$TEMP_DIR/leptonica.jar" && [ -s "$TEMP_DIR/leptonica.jar" ]; then LEPTONICA_OK=1; echo "✅ Descargado Leptonica (wget)"; break; fi
+done
+if [ "$LEPTONICA_OK" -ne 1 ]; then echo "❌ No se pudo descargar ningún JAR de Leptonica"; exit 1; fi
 
-echo "📥 Descargando Tesseract JAR (curl con reintentos)..."
-curl -fsSL --retry 5 --retry-delay 2 "$TESSERACT_URL" -o "$TEMP_DIR/tesseract.jar" || {
-  echo "⚠️ Falló curl Tesseract, probando con wget...";
-  wget -q "$TESSERACT_URL" -O "$TEMP_DIR/tesseract.jar" || { echo "❌ Error descargando Tesseract"; exit 1; };
-}
-if [ ! -s "$TEMP_DIR/tesseract.jar" ]; then echo "❌ Tesseract JAR vacío"; exit 1; fi
+echo "📥 Descargando Tesseract JAR (con fallback de versiones)..."
+TESSERACT_OK=0
+for URL in "${TESSERACT_CANDIDATES[@]}"; do
+  echo "➡️ Intentando: $URL"
+  if curl -fsSL --retry 5 --retry-delay 2 "$URL" -o "$TEMP_DIR/tesseract.jar"; then
+    if [ -s "$TEMP_DIR/tesseract.jar" ]; then TESSERACT_OK=1; echo "✅ Descargado Tesseract"; break; fi
+  fi
+  echo "⚠️ Falló curl, probando wget..."
+  if wget -q "$URL" -O "$TEMP_DIR/tesseract.jar" && [ -s "$TEMP_DIR/tesseract.jar" ]; then TESSERACT_OK=1; echo "✅ Descargado Tesseract (wget)"; break; fi
+done
+if [ "$TESSERACT_OK" -ne 1 ]; then echo "❌ No se pudo descargar ningún JAR de Tesseract"; exit 1; fi
 
 echo "📦 Extrayendo librerías nativas..."
 
