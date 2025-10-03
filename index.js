@@ -48,12 +48,40 @@ app.use(cors());
 app.use(express.json());
 app.use('/outputs', express.static(OUTPUT_DIR));
 
+// Verificar librerías nativas al inicio
+const checkNativeLibraries = () => {
+  console.log('🔍 Verificando librerías nativas...');
+  console.log('LD_LIBRARY_PATH:', process.env.LD_LIBRARY_PATH);
+  console.log('JAVA_HOME:', process.env.JAVA_HOME);
+  console.log('TESSDATA_PREFIX:', process.env.TESSDATA_PREFIX);
+  
+  // Verificar que las librerías estén disponibles
+  const fs = require('fs');
+  const libPaths = [
+    '/usr/lib/x86_64-linux-gnu/liblept.so',
+    '/usr/lib/x86_64-linux-gnu/libtesseract.so',
+    '/usr/lib/liblept.so',
+    '/usr/lib/libtesseract.so'
+  ];
+  
+  libPaths.forEach(libPath => {
+    if (fs.existsSync(libPath)) {
+      console.log(`✅ Encontrada: ${libPath}`);
+    } else {
+      console.log(`❌ No encontrada: ${libPath}`);
+    }
+  });
+};
+
+// Ejecutar verificación al inicio
+checkNativeLibraries();
+
 // Función para ejecutar Audiveris
 const runAudiveris = (inputPath) => {
   return new Promise((resolve, reject) => {
     const libPath = path.join(AUDIVERIS_DIR, 'lib', '*');
-    // ⚡ Eliminamos -Djava.library.path
-    const command = `java -cp "${libPath}" Audiveris -batch "${inputPath}" -export -output "${OUTPUT_DIR}"`;
+    // Usar las librerías nativas del sistema
+    const command = `java -Djava.library.path=/usr/lib/x86_64-linux-gnu -cp "${libPath}" Audiveris -batch "${inputPath}" -export -output "${OUTPUT_DIR}"`;
     console.log('> Comando Audiveris:', command);
 
     const child = exec(command, { cwd: AUDIVERIS_DIR, shell: true });

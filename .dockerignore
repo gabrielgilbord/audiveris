@@ -1,7 +1,10 @@
 # Fly added from .gitignore
-**/node_modules
-**/uploads/input
-**/uploads/output
-**/*.log
+node_modules
+uploads/input/*
+uploads/output/*
+*.log
 
 fly.toml
+.git
+.gitignore
+README.md
