@@ -206,8 +206,6 @@ app.get('/health', (_req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Audiveris OMR service running on http://localhost:${PORT}`);
-});
+app.listen(PORT, '0.0.0.0', () => console.log(`Server running on ${PORT}`));
 
 
