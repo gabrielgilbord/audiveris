@@ -1,17 +1,14 @@
+# Usar Node.js como base
 FROM node:20
 
-# Instalar dependencias, OpenJDK 21, Tesseract OCR y librerías nativas
+# Instalar dependencias: OpenJDK 21, Tesseract OCR y librerías básicas
 RUN apt-get update && apt-get install -y \
     curl gnupg unzip \
     tesseract-ocr tesseract-ocr-eng \
-    libleptonica-dev libtesseract-dev pkg-config \
-    libpng-dev libjpeg-dev \
+    libpng-dev libjpeg-dev libfreetype6-dev zlib1g \
     && curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor -o /usr/share/keyrings/adoptium.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/adoptium.gpg] https://packages.adoptium.net/artifactory/deb bullseye main" > /etc/apt/sources.list.d/adoptium.list \
     && apt-get update && apt-get install -y temurin-21-jdk \
-    # Crear symlinks para que JavaCPP encuentre las libs
-    && ln -s /usr/lib/x86_64-linux-gnu/liblept.so /usr/lib/x86_64-linux-gnu/libjnileptonica.so \
-    && ln -s /usr/lib/x86_64-linux-gnu/libtesseract.so /usr/lib/x86_64-linux-gnu/libjnitesseract.so \
     && rm -rf /var/lib/apt/lists/*
 
 # Variables de entorno
