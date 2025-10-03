@@ -26,12 +26,18 @@ TESSERACT_URL="https://repo1.maven.org/maven2/org/bytedeco/tesseract-platform/5.
 TEMP_DIR="/tmp/javacpp-temp"
 mkdir -p "$TEMP_DIR"
 
-echo "📥 Descargando Leptonica JAR..."
-wget -q "$LEPTONICA_URL" -O "$TEMP_DIR/leptonica.jar" || { echo "❌ Error descargando Leptonica"; exit 1; }
+echo "📥 Descargando Leptonica JAR (curl con reintentos)..."
+curl -fsSL --retry 5 --retry-delay 2 "$LEPTONICA_URL" -o "$TEMP_DIR/leptonica.jar" || {
+  echo "⚠️ Falló curl Leptonica, probando con wget...";
+  wget -q "$LEPTONICA_URL" -O "$TEMP_DIR/leptonica.jar" || { echo "❌ Error descargando Leptonica"; exit 1; };
+}
 if [ ! -s "$TEMP_DIR/leptonica.jar" ]; then echo "❌ Leptonica JAR vacío"; exit 1; fi
 
-echo "📥 Descargando Tesseract JAR..."
-wget -q "$TESSERACT_URL" -O "$TEMP_DIR/tesseract.jar" || { echo "❌ Error descargando Tesseract"; exit 1; }
+echo "📥 Descargando Tesseract JAR (curl con reintentos)..."
+curl -fsSL --retry 5 --retry-delay 2 "$TESSERACT_URL" -o "$TEMP_DIR/tesseract.jar" || {
+  echo "⚠️ Falló curl Tesseract, probando con wget...";
+  wget -q "$TESSERACT_URL" -O "$TEMP_DIR/tesseract.jar" || { echo "❌ Error descargando Tesseract"; exit 1; };
+}
 if [ ! -s "$TEMP_DIR/tesseract.jar" ]; then echo "❌ Tesseract JAR vacío"; exit 1; fi
 
 echo "📦 Extrayendo librerías nativas..."

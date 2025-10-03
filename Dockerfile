@@ -1,14 +1,14 @@
 FROM openjdk:21-jdk-slim
 
 # Instalar Node.js 20
-RUN apt-get update && apt-get install -y curl gnupg && \
+RUN apt-get update && apt-get install -y curl gnupg ca-certificates && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
 
 # Instalar dependencias del sistema y librerías nativas
 RUN apt-get update && apt-get install -y \
-    wget unzip build-essential curl \
+    wget unzip build-essential curl ca-certificates \
     tesseract-ocr tesseract-ocr-eng tesseract-ocr-spa \
     libtesseract-dev libleptonica-dev \
     libopencv-dev libavcodec-dev libavformat-dev \
@@ -17,6 +17,9 @@ RUN apt-get update && apt-get install -y \
     libatlas-base-dev gfortran \
     libfreetype6-dev zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Actualizar certificados CA
+RUN update-ca-certificates || true
 
 # Variables de entorno
 ENV JAVA_HOME=/usr/local/openjdk-21
