@@ -1,9 +1,11 @@
 # Usar la imagen completa de Node.js para que npm esté disponible
 FROM node:20
 
-# Instalar dependencias, OpenJDK 21 y Tesseract OCR
+# Instalar dependencias, OpenJDK 21, Tesseract OCR y librerías nativas
 RUN apt-get update && apt-get install -y \
-    curl gnupg unzip tesseract-ocr tesseract-ocr-eng && \
+    curl gnupg unzip \
+    tesseract-ocr tesseract-ocr-eng \
+    libleptonica-dev libtesseract-dev pkg-config && \
     curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor -o /usr/share/keyrings/adoptium.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/adoptium.gpg] https://packages.adoptium.net/artifactory/deb bullseye main" > /etc/apt/sources.list.d/adoptium.list && \
     apt-get update && apt-get install -y temurin-21-jdk && \
