@@ -27,12 +27,14 @@ ln -sf /usr/lib/x86_64-linux-gnu/libtesseract.so.5.0.3 /usr/lib/libtesseract.so 
 # Cambiar al directorio de Audiveris
 cd /app/audiveris-5.4
 
-# Ejecutar Audiveris con configuración optimizada
+# Ejecutar Audiveris con configuración que usa librerías del sistema
 java \
-  -Djava.library.path="/tmp/javacpp-cache" \
+  -Djava.library.path="/usr/lib/x86_64-linux-gnu:/usr/lib:/tmp/javacpp-cache" \
   -Djavacpp.platform=linux-x86_64 \
   -Djavacpp.cache.dir=/tmp/javacpp-cache \
   -Djavacpp.verbose=true \
+  -Djavacpp.skip=true \
+  -Djava.awt.headless=true \
   -cp "lib/*" \
   Audiveris \
   -batch "$INPUT_FILE" \
