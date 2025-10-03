@@ -18,7 +18,7 @@ cd /app/audiveris-5.4
 
 echo "📚 Pre-cargando clases JavaCPP..."
 
-# Crear un archivo Java temporal para pre-cargar las clases
+# Crear un archivo Java temporal para forzar descarga de librerías
 cat > /tmp/PreloadJavaCPP.java << 'EOF'
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.leptonica.global.leptonica;
@@ -27,6 +27,10 @@ import org.bytedeco.tesseract.global.tesseract;
 public class PreloadJavaCPP {
     public static void main(String[] args) {
         try {
+            // Forzar descarga de librerías JavaCPP
+            System.setProperty("javacpp.download", "true");
+            System.setProperty("javacpp.extract", "true");
+            
             System.out.println("🔧 Pre-cargando Leptonica...");
             Loader.load(leptonica.class);
             System.out.println("✅ Leptonica cargado correctamente");
@@ -53,8 +57,10 @@ echo "🚀 Ejecutando pre-loader..."
 java -Djavacpp.platform=linux-x86_64 \
      -Djavacpp.cache.dir=/tmp/javacpp-cache \
      -Djavacpp.verbose=true \
+     -Djavacpp.download=true \
+     -Djavacpp.extract=true \
      -cp "/tmp:lib/*" \
-     -Djava.library.path="/usr/lib/x86_64-linux-gnu:/usr/lib:/tmp/javacpp-cache" \
+     -Djava.library.path="/tmp/javacpp-cache" \
      PreloadJavaCPP
 
 echo "✅ Pre-carga completada"

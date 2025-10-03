@@ -33,10 +33,12 @@ ln -sf /usr/lib/x86_64-linux-gnu/libtesseract.so.5.0.3 /usr/lib/libtesseract.so 
 # Configurar variables de entorno para JavaCPP
 export JAVACPP_CACHE_DIR=/tmp/javacpp-cache
 export JAVACPP_PLATFORM=linux-x86_64
+export JAVACPP_VERBOSE=1
 
 echo "🔧 Variables de entorno configuradas:"
 echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
 echo "JAVACPP_CACHE_DIR: $JAVACPP_CACHE_DIR"
 echo "JAVACPP_PLATFORM: $JAVACPP_PLATFORM"
+echo "JAVACPP_VERBOSE: $JAVACPP_VERBOSE"
 
 echo "✅ Inicialización completada"

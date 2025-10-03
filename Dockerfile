@@ -24,7 +24,8 @@ ENV PATH="$JAVA_HOME/bin:$PATH"
 ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata/
 ENV JAVACPP_PLATFORM=linux-x86_64
 ENV JAVACPP_VERBOSE=1
-ENV LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:/usr/lib:$LD_LIBRARY_PATH"
+ENV JAVACPP_CACHE_DIR=/tmp/javacpp-cache
+ENV LD_LIBRARY_PATH="/tmp/javacpp-cache:$LD_LIBRARY_PATH"
 ENV PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH"
 
 # Directorio de trabajo
@@ -39,6 +40,9 @@ COPY . .
 
 # Hacer ejecutables los scripts
 RUN chmod +x /app/init-libs.sh /app/run-audiveris.sh /app/preload-javacpp.sh
+
+# Crear directorio de cache para JavaCPP
+RUN mkdir -p /tmp/javacpp-cache
 
 # Exponer puerto
 EXPOSE 4000
