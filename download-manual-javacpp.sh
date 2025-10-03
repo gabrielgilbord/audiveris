@@ -19,8 +19,8 @@ echo "🔧 Descargando librerías JavaCPP específicas..."
 
 # URLs de las librerías JavaCPP "platform" alineadas con el sistema
 # Leptonica 1.82.0 (SONAME .5) y Tesseract 5.3.0
-LEPTONICA_URL="https://repo1.maven.org/maven2/org/bytedeco/leptonica-platform/1.82.0-1.5.9/leptonica-platform-1.82.0-1.5.9-linux-x86_64.jar"
-TESSERACT_URL="https://repo1.maven.org/maven2/org/bytedeco/tesseract-platform/5.3.0-1.5.9/tesseract-platform-5.3.0-1.5.9-linux-x86_64.jar"
+LEPTONICA_URL="https://repo1.maven.org/maven2/org/bytedeco/leptonica-platform/1.83.0-1.5.9/leptonica-platform-1.83.0-1.5.9-linux-x86_64.jar"
+TESSERACT_URL="https://repo1.maven.org/maven2/org/bytedeco/tesseract-platform/5.3.1-1.5.9/tesseract-platform-5.3.1-1.5.9-linux-x86_64.jar"
 
 # Crear directorio temporal
 TEMP_DIR="/tmp/javacpp-temp"
