@@ -51,9 +51,9 @@ app.use('/outputs', express.static(OUTPUT_DIR));
 // Función para ejecutar Audiveris
 const runAudiveris = (inputPath) => {
   return new Promise((resolve, reject) => {
-    // ⚡ Añadido -Djava.library.path para que Java cargue las JNI de Audiveris
     const libPath = path.join(AUDIVERIS_DIR, 'lib', '*');
-    const command = `java -Djava.library.path=${AUDIVERIS_DIR}/lib -cp "${libPath}" Audiveris -batch "${inputPath}" -export -output "${OUTPUT_DIR}"`;
+    // ⚡ Eliminamos -Djava.library.path
+    const command = `java -cp "${libPath}" Audiveris -batch "${inputPath}" -export -output "${OUTPUT_DIR}"`;
     console.log('> Comando Audiveris:', command);
 
     const child = exec(command, { cwd: AUDIVERIS_DIR, shell: true });

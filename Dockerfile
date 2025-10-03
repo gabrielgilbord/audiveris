@@ -14,7 +14,8 @@ RUN apt-get update && apt-get install -y \
 ENV JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64
 ENV PATH="$JAVA_HOME/bin:$PATH"
 ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata/
-ENV LD_LIBRARY_PATH=/app/audiveris-5.4/lib:$LD_LIBRARY_PATH
+ENV JAVACPP_PLATFORM=linux-x86_64
+ENV JAVACPP_VERBOSE=1
 
 # Directorio de trabajo
 WORKDIR /app
@@ -29,5 +30,5 @@ COPY . .
 # Exponer puerto
 EXPOSE 4000
 
-# ⚡ Arrancar Node.js y cuando invoques Audiveris añade -Djava.library.path
+# Comando por defecto
 CMD ["npm", "start"]
