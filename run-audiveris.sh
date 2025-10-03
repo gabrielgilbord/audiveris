@@ -19,6 +19,11 @@ export JAVACPP_VERBOSE=1
 # Crear directorio de cache si no existe
 mkdir -p /tmp/javacpp-cache
 
+# Crear enlaces simbólicos para las librerías nativas
+echo "🔗 Creando enlaces simbólicos para librerías nativas..."
+ln -sf /usr/lib/x86_64-linux-gnu/liblept.so.5.0.4 /usr/lib/liblept.so 2>/dev/null || echo "⚠️ No se pudo crear enlace para liblept.so"
+ln -sf /usr/lib/x86_64-linux-gnu/libtesseract.so.5.0.3 /usr/lib/libtesseract.so 2>/dev/null || echo "⚠️ No se pudo crear enlace para libtesseract.so"
+
 # Cambiar al directorio de Audiveris
 cd /app/audiveris-5.4
 

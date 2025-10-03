@@ -58,8 +58,8 @@ const checkNativeLibraries = () => {
   // Verificar que las librerías estén disponibles
   const fs = require('fs');
   const libPaths = [
-    '/usr/lib/x86_64-linux-gnu/liblept.so',
-    '/usr/lib/x86_64-linux-gnu/libtesseract.so',
+    '/usr/lib/x86_64-linux-gnu/liblept.so.5.0.4',
+    '/usr/lib/x86_64-linux-gnu/libtesseract.so.5.0.3',
     '/usr/lib/liblept.so',
     '/usr/lib/libtesseract.so'
   ];
