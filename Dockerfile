@@ -1,7 +1,6 @@
-# Usar Node.js como base
 FROM node:20
 
-# Instalar dependencias: OpenJDK 21, Tesseract OCR y librerías básicas
+# Instalar dependencias mínimas + OpenJDK 21 + Tesseract OCR
 RUN apt-get update && apt-get install -y \
     curl gnupg unzip \
     tesseract-ocr tesseract-ocr-eng \
@@ -15,7 +14,7 @@ RUN apt-get update && apt-get install -y \
 ENV JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64
 ENV PATH="$JAVA_HOME/bin:$PATH"
 ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata/
-ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=/app/audiveris-5.4/lib:$LD_LIBRARY_PATH
 
 # Directorio de trabajo
 WORKDIR /app
@@ -30,5 +29,5 @@ COPY . .
 # Exponer puerto
 EXPOSE 4000
 
-# Comando por defecto
+# ⚡ Arrancar Node.js y cuando invoques Audiveris añade -Djava.library.path
 CMD ["npm", "start"]
