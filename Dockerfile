@@ -1,8 +1,14 @@
-FROM node:20
+FROM openjdk:21-jdk-slim
 
-# Instalar dependencias completas + OpenJDK 21 + Tesseract OCR + librerías nativas
+# Instalar Node.js 20
+RUN apt-get update && apt-get install -y curl gnupg && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    rm -rf /var/lib/apt/lists/*
+
+# Instalar dependencias del sistema y librerías nativas
 RUN apt-get update && apt-get install -y \
-    curl gnupg unzip wget build-essential \
+    wget unzip build-essential \
     tesseract-ocr tesseract-ocr-eng tesseract-ocr-spa \
     libtesseract-dev libleptonica-dev \
     libopencv-dev libavcodec-dev libavformat-dev \
@@ -10,13 +16,10 @@ RUN apt-get update && apt-get install -y \
     libx264-dev libjpeg-dev libpng-dev libtiff-dev \
     libatlas-base-dev gfortran \
     libfreetype6-dev zlib1g-dev \
-    && curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor -o /usr/share/keyrings/adoptium.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/adoptium.gpg] https://packages.adoptium.net/artifactory/deb bullseye main" > /etc/apt/sources.list.d/adoptium.list \
-    && apt-get update && apt-get install -y temurin-21-jdk \
     && rm -rf /var/lib/apt/lists/*
 
 # Variables de entorno
-ENV JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64
+ENV JAVA_HOME=/usr/local/openjdk-21
 ENV PATH="$JAVA_HOME/bin:$PATH"
 ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata/
 ENV JAVACPP_PLATFORM=linux-x86_64
@@ -34,8 +37,8 @@ RUN npm install --production
 # Copiar el resto de la aplicación
 COPY . .
 
-# Hacer ejecutable el script de inicialización
-RUN chmod +x /app/init-libs.sh
+# Hacer ejecutables los scripts
+RUN chmod +x /app/init-libs.sh /app/run-audiveris.sh
 
 # Exponer puerto
 EXPOSE 4000

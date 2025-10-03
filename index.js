@@ -79,12 +79,11 @@ checkNativeLibraries();
 // Función para ejecutar Audiveris
 const runAudiveris = (inputPath) => {
   return new Promise((resolve, reject) => {
-    const libPath = path.join(AUDIVERIS_DIR, 'lib', '*');
-    // Usar las librerías nativas del sistema
-    const command = `java -Djava.library.path=/usr/lib/x86_64-linux-gnu -cp "${libPath}" Audiveris -batch "${inputPath}" -export -output "${OUTPUT_DIR}"`;
-    console.log('> Comando Audiveris:', command);
+    // Usar el script optimizado
+    const command = `./run-audiveris.sh "${inputPath}" "${OUTPUT_DIR}"`;
+    console.log('> Ejecutando script optimizado de Audiveris');
 
-    const child = exec(command, { cwd: AUDIVERIS_DIR, shell: true });
+    const child = exec(command, { cwd: '/app', shell: true });
 
     child.stdout.on('data', (data) => console.log(`[AUDIVERIS] ${data}`));
     child.stderr.on('data', (data) => console.error(`[AUDIVERIS][ERR] ${data}`));
