@@ -33,7 +33,7 @@ java \
   -Djavacpp.platform=linux-x86_64 \
   -Djavacpp.cache.dir=/tmp/javacpp-cache \
   -Djavacpp.verbose=true \
-  -Djavacpp.skip=true \
+  -Djavacpp.skip=false \
   -Djava.awt.headless=true \
   -cp "lib/*" \
   Audiveris \
