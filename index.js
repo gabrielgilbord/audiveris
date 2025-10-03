@@ -15,18 +15,13 @@ const AUDIVERIS_DIR = path.resolve(BASE_DIR, 'audiveris-5.4');
 const INPUT_DIR = path.resolve(BASE_DIR, 'uploads', 'input');
 const OUTPUT_DIR = path.resolve(BASE_DIR, 'uploads', 'output');
 
-if (!fs.existsSync(INPUT_DIR)) {
-  fs.mkdirSync(INPUT_DIR, { recursive: true });
-}
+// Crear carpetas si no existen
+if (!fs.existsSync(INPUT_DIR)) fs.mkdirSync(INPUT_DIR, { recursive: true });
+if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
-if (!fs.existsSync(OUTPUT_DIR)) {
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-}
-
+// Configuración de multer
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, INPUT_DIR);
-  },
+  destination: (_req, _file, cb) => cb(null, INPUT_DIR),
   filename: (_req, file, cb) => {
     const safeName = file.originalname
       .normalize('NFD')
@@ -43,21 +38,17 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   fileFilter: (_req, file, cb) => {
-    if (file.mimetype === 'application/pdf') {
-      cb(null, true);
-    } else {
-      cb(new Error('Solo se permiten archivos PDF.'));
-    }
+    if (file.mimetype === 'application/pdf') cb(null, true);
+    else cb(new Error('Solo se permiten archivos PDF.'));
   },
-  limits: {
-    fileSize: 25 * 1024 * 1024 // 25 MB
-  }
+  limits: { fileSize: 25 * 1024 * 1024 } // 25 MB
 });
 
 app.use(cors());
 app.use(express.json());
 app.use('/outputs', express.static(OUTPUT_DIR));
 
+// Función para ejecutar Audiveris
 const runAudiveris = (inputPath) => {
   return new Promise((resolve, reject) => {
     const libPath = path.join(AUDIVERIS_DIR, 'lib', '*');
@@ -66,55 +57,34 @@ const runAudiveris = (inputPath) => {
 
     const child = exec(command, { cwd: AUDIVERIS_DIR, shell: true });
 
-    child.stdout.on('data', (data) => {
-      console.log(`[AUDIVERIS] ${data}`);
-    });
+    child.stdout.on('data', (data) => console.log(`[AUDIVERIS] ${data}`));
+    child.stderr.on('data', (data) => console.error(`[AUDIVERIS][ERR] ${data}`));
 
-    child.stderr.on('data', (data) => {
-      console.error(`[AUDIVERIS][ERR] ${data}`);
-    });
-
-    child.on('error', (error) => {
-      reject(error);
-    });
-
+    child.on('error', (error) => reject(error));
     child.on('close', (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(new Error(`Audiveris finalizó con código ${code}`));
-      }
+      code === 0 ? resolve() : reject(new Error(`Audiveris finalizó con código ${code}`));
     });
   });
 };
 
+// Buscar archivo de salida
 const findOutputFile = (inputFile) => {
   const baseName = path.basename(inputFile, path.extname(inputFile));
   const possibleExtensions = ['.xml', '.musicxml', '.mxl'];
 
-  // Buscar archivos que coincidan con el nombre base
-  const matchingFiles = fs
-    .readdirSync(OUTPUT_DIR)
-    .filter((file) => {
-      const fileBaseName = path.basename(file, path.extname(file));
-      return fileBaseName === baseName && possibleExtensions.includes(path.extname(file).toLowerCase());
-    })
-    .map((file) => path.join(OUTPUT_DIR, file));
+  let matchingFiles = fs.readdirSync(OUTPUT_DIR)
+    .filter(file => path.basename(file, path.extname(file)) === baseName && possibleExtensions.includes(path.extname(file).toLowerCase()))
+    .map(file => path.join(OUTPUT_DIR, file));
 
   if (matchingFiles.length === 0) {
-    // Buscar en subdirectorios
     const subDir = path.join(OUTPUT_DIR, baseName);
     if (fs.existsSync(subDir) && fs.statSync(subDir).isDirectory()) {
-      const files = fs.readdirSync(subDir);
-      const match = files.find((file) => possibleExtensions.includes(path.extname(file).toLowerCase()));
-      if (match) {
-        return path.join(subDir, match);
-      }
+      const match = fs.readdirSync(subDir).find(file => possibleExtensions.includes(path.extname(file).toLowerCase()));
+      if (match) return path.join(subDir, match);
     }
     return null;
   }
 
-  // Si hay múltiples archivos, devolver el de mayor tamaño (el completo)
   if (matchingFiles.length > 1) {
     matchingFiles.sort((a, b) => fs.statSync(b).size - fs.statSync(a).size);
     console.log(`> Encontrados ${matchingFiles.length} archivos, seleccionando el más pesado:`, matchingFiles[0]);
@@ -123,22 +93,18 @@ const findOutputFile = (inputFile) => {
   return matchingFiles[0];
 };
 
+// Cola de procesamiento
 let isProcessing = false;
 const queue = [];
 
 const processQueue = async () => {
-  if (isProcessing || queue.length === 0) {
-    return;
-  }
+  if (isProcessing || queue.length === 0) return;
   isProcessing = true;
 
   const { req, res } = queue.shift();
 
   try {
-    if (!req.file) {
-      res.status(400).json({ message: 'No se recibió ningún archivo PDF.' });
-      return;
-    }
+    if (!req.file) return res.status(400).json({ message: 'No se recibió ningún archivo PDF.' });
 
     const pdfPath = req.file.path;
     console.log('> Ejecutando Audiveris con', pdfPath);
@@ -149,32 +115,16 @@ const processQueue = async () => {
 
     if (!musicXmlPath) {
       console.error('> No se encontró salida para', req.file.filename);
-      res.status(500).json({
-        message: 'No se encontró el archivo MusicXML generado.',
-        detail: 'Revisa los logs de Audiveris para más información.'
-      });
-      return;
+      return res.status(500).json({ message: 'No se encontró el archivo MusicXML generado.', detail: 'Revisa los logs de Audiveris.' });
     }
 
     const relativePath = path.relative(OUTPUT_DIR, musicXmlPath).replace(/\\/g, '/');
-
     console.log('> MusicXML generado', musicXmlPath);
-
-    if (res.headersSent) {
-      console.warn('> La respuesta ya se envió, se descarta el resultado');
-      return;
-    }
 
     res.json({
       message: 'Conversión completada',
-      pdf: {
-        originalName: req.file.originalname,
-        storedName: req.file.filename
-      },
-      result: {
-        fileName: path.basename(musicXmlPath),
-        url: `/outputs/${relativePath}`
-      }
+      pdf: { originalName: req.file.originalname, storedName: req.file.filename },
+      result: { fileName: path.basename(musicXmlPath), url: `/outputs/${relativePath}` }
     });
     console.log('> Respuesta JSON enviada');
   } catch (error) {
@@ -186,26 +136,27 @@ const processQueue = async () => {
   }
 };
 
+// Endpoint de conversión
 app.post('/convert', upload.single('pdf'), (req, res) => {
-  console.log('> /convert recibido', {
-    file: req.file?.originalname,
-    size: req.file?.size,
-    stored: req.file?.filename
-  });
-
+  console.log('> /convert recibido', { file: req.file?.originalname, size: req.file?.size, stored: req.file?.filename });
   queue.push({ req, res });
   processQueue();
 });
 
+// Health check
 app.get('/health', (_req, res) => {
   const javaInstalled = !!process.env.JAVA_HOME || process.platform === 'win32';
-  res.json({
-    status: 'ok',
-    audiverisPath: AUDIVERIS_DIR,
-    javaDetected: javaInstalled
-  });
+  res.json({ status: 'ok', audiverisPath: AUDIVERIS_DIR, javaDetected: javaInstalled });
 });
 
+// Manejo de shutdown para Render
+const shutdown = () => {
+  console.log('> Recibida señal de shutdown, cerrando servidor...');
+  process.exit(0);
+};
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
+
+// Arrancar servidor
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on ${PORT}`));
-
-
