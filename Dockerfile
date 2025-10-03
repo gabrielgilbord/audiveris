@@ -39,7 +39,7 @@ RUN npm install --production
 COPY . .
 
 # Hacer ejecutables los scripts
-RUN chmod +x /app/init-libs.sh /app/run-audiveris.sh /app/preload-javacpp.sh
+RUN chmod +x /app/init-libs.sh /app/run-audiveris.sh /app/preload-javacpp.sh /app/download-javacpp-libs.sh
 
 # Crear directorio de cache para JavaCPP
 RUN mkdir -p /tmp/javacpp-cache
@@ -48,4 +48,4 @@ RUN mkdir -p /tmp/javacpp-cache
 EXPOSE 4000
 
 # Comando por defecto con inicialización de librerías
-CMD ["sh", "-c", "./init-libs.sh && ./preload-javacpp.sh && npm start"]
+CMD ["sh", "-c", "./init-libs.sh && ./download-javacpp-libs.sh && npm start"]
