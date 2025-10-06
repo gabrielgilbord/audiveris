@@ -29,14 +29,39 @@ cd /app/audiveris-5.4
 
 # Precargar librerías JavaCPP para forzar extracción en cache
 echo "📥 Precargando librerías JavaCPP (leptonica, tesseract)..."
+cat > /tmp/PreloadJavaCPP.java << 'EOF'
+import org.bytedeco.javacpp.Loader;
+import org.bytedeco.leptonica.global.leptonica;
+import org.bytedeco.tesseract.global.tesseract;
+
+public class PreloadJavaCPP {
+    public static void main(String[] args) {
+        try {
+            System.out.println("🔧 Precargando Leptonica...");
+            Loader.load(leptonica.class);
+            System.out.println("✅ Leptonica precargado");
+            
+            System.out.println("🔧 Precargando Tesseract...");
+            Loader.load(tesseract.class);
+            System.out.println("✅ Tesseract precargado");
+            
+            System.out.println("🎉 Todas las librerías JavaCPP precargadas correctamente");
+        } catch (Exception e) {
+            System.err.println("⚠️ Error en precarga: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+EOF
+
+javac -cp "lib/*" /tmp/PreloadJavaCPP.java && \
 java \
   -Djavacpp.platform=linux-x86_64 \
   -Djavacpp.cache.dir=/tmp/javacpp-cache \
   -Djavacpp.verbose=true \
   -Djava.library.path="/usr/lib/x86_64-linux-gnu:/usr/lib:/tmp/javacpp-cache" \
-  -cp "lib/*" \
-  org.bytedeco.javacpp.Loader \
-  -Dloader.preload=org.bytedeco.leptonica.global.leptonica,org.bytedeco.tesseract.global.tesseract || echo "⚠️ Precarga JavaCPP no determinante, continuando..."
+  -cp "/tmp:lib/*" \
+  PreloadJavaCPP || echo "⚠️ Precarga JavaCPP no determinante, continuando..."
 
 echo "🔍 Archivos JNI en cache tras precarga (si existen):"
 find /tmp/javacpp-cache -type f -name "libjni*.so*" | head -20 || true
