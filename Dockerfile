@@ -6,30 +6,14 @@ RUN apt-get update && apt-get install -y curl gnupg ca-certificates && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
 
-# Instalar dependencias del sistema y librerías nativas 1
+# Instalar dependencias básicas
 RUN apt-get update && apt-get install -y \
-    wget unzip build-essential curl ca-certificates \
-    tesseract-ocr tesseract-ocr-eng tesseract-ocr-spa \
-    libtesseract-dev libleptonica-dev \
-    libopencv-dev libavcodec-dev libavformat-dev \
-    libswscale-dev libv4l-dev libxvidcore-dev \
-    libx264-dev libjpeg-dev libpng-dev libtiff-dev \
-    libatlas-base-dev gfortran \
-    libfreetype6-dev zlib1g-dev \
+    wget unzip curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
-
-# Actualizar certificados CA
-RUN update-ca-certificates || true
 
 # Variables de entorno
 ENV JAVA_HOME=/usr/local/openjdk-21
 ENV PATH="$JAVA_HOME/bin:$PATH"
-ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata/
-ENV JAVACPP_PLATFORM=linux-x86_64
-ENV JAVACPP_VERBOSE=1
-ENV JAVACPP_CACHE_DIR=/tmp/javacpp-cache
-ENV LD_LIBRARY_PATH="/tmp/javacpp-cache:$LD_LIBRARY_PATH"
-ENV PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH"
 
 # Directorio de trabajo
 WORKDIR /app
@@ -41,14 +25,8 @@ RUN npm install --production
 # Copiar el resto de la aplicación
 COPY . .
 
-# Hacer ejecutables los scripts
-RUN chmod +x /app/*.sh && chmod +x /app/audiveris-5.4/*.sh
-
-# Crear directorio de cache para JavaCPP
-RUN mkdir -p /tmp/javacpp-cache
-
 # Exponer puerto
 EXPOSE 4000
 
-# Comando por defecto solucionando JNI, permisos y iniciando
-CMD ["sh", "-c", "./fix-jni-libs.sh && ./fix-permissions.sh && ./init-libs.sh && npm start"]
+# Comando simple - igual que en local
+CMD ["npm", "start"]
