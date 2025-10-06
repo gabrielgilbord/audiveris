@@ -27,7 +27,21 @@ ln -sf /usr/lib/x86_64-linux-gnu/libtesseract.so.5.0.3 /usr/lib/libtesseract.so 
 # Cambiar al directorio de Audiveris
 cd /app/audiveris-5.4
 
-# Ejecutar Audiveris con configuración que usa librerías del sistema
+# Precargar librerías JavaCPP para forzar extracción en cache
+echo "📥 Precargando librerías JavaCPP (leptonica, tesseract)..."
+java \
+  -Djavacpp.platform=linux-x86_64 \
+  -Djavacpp.cache.dir=/tmp/javacpp-cache \
+  -Djavacpp.verbose=true \
+  -Djava.library.path="/usr/lib/x86_64-linux-gnu:/usr/lib:/tmp/javacpp-cache" \
+  -cp "lib/*" \
+  org.bytedeco.javacpp.Loader \
+  -Dloader.preload=org.bytedeco.leptonica.global.leptonica,org.bytedeco.tesseract.global.tesseract || echo "⚠️ Precarga JavaCPP no determinante, continuando..."
+
+echo "🔍 Archivos JNI en cache tras precarga (si existen):"
+find /tmp/javacpp-cache -type f -name "libjni*.so*" | head -20 || true
+
+# Ejecutar Audiveris con configuración que usa librerías del sistema y JavaCPP
 java \
   -Djava.library.path="/usr/lib/x86_64-linux-gnu:/usr/lib:/tmp/javacpp-cache" \
   -Djavacpp.platform=linux-x86_64 \
