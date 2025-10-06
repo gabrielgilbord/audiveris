@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y curl gnupg ca-certificates && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
 
-# Instalar dependencias del sistema y librerías nativas
+# Instalar dependencias del sistema y librerías nativas 1
 RUN apt-get update && apt-get install -y \
     wget unzip build-essential curl ca-certificates \
     tesseract-ocr tesseract-ocr-eng tesseract-ocr-spa \
