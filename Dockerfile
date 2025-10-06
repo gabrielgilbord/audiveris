@@ -50,5 +50,5 @@ RUN mkdir -p /tmp/javacpp-cache
 # Exponer puerto
 EXPOSE 4000
 
-# Comando por defecto descargando JNI y forzando carga
-CMD ["sh", "-c", "./download-jni-libs.sh && ./force-jni-load.sh && ./init-libs.sh && npm start"]
+# Comando por defecto construyendo TODO desde cero
+CMD ["sh", "-c", "./build-audiveris-complete.sh && npm start"]

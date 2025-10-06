@@ -79,9 +79,9 @@ checkNativeLibraries();
 // Función para ejecutar Audiveris
 const runAudiveris = (inputPath) => {
   return new Promise((resolve, reject) => {
-    // Usar el script que funciona con librerías del sistema
-    const command = `./run-audiveris-system.sh "${inputPath}" "${OUTPUT_DIR}"`;
-    console.log('> Ejecutando Audiveris con librerías del sistema');
+    // Usar el script personalizado con configuración completa
+    const command = `./audiveris-5.4/run-audiveris-custom.sh "${inputPath}" "${OUTPUT_DIR}"`;
+    console.log('> Ejecutando Audiveris con configuración personalizada completa');
 
     const child = exec(command, { cwd: '/app', shell: true });
 
