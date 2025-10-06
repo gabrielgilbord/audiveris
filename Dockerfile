@@ -6,9 +6,15 @@ RUN apt-get update && apt-get install -y curl gnupg ca-certificates && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
 
-# Instalar dependencias básicas
+# Instalar dependencias básicas y librerías nativas necesarias para Java
 RUN apt-get update && apt-get install -y \
     wget unzip curl ca-certificates \
+    libfreetype6 libfontconfig1 \
+    libxrender1 libxtst6 libxi6 \
+    libxrandr2 libxss1 libgconf-2-4 \
+    libasound2 libpangocairo-1.0-0 \
+    libatk1.0-0 libcairo-gobject2 \
+    libgtk-3-0 libgdk-pixbuf2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Variables de entorno
