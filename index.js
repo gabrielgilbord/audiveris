@@ -79,11 +79,21 @@ checkNativeLibraries();
 // Función para ejecutar Audiveris
 const runAudiveris = (inputPath) => {
   return new Promise((resolve, reject) => {
-    // Usar el script personalizado con configuración completa
-    const command = `./audiveris-5.4/run-audiveris-custom.sh "${inputPath}" "${OUTPUT_DIR}"`;
+    // Usar bash directamente para evitar problemas de permisos
+    const scriptPath = '/app/audiveris-5.4/run-audiveris-custom.sh';
+    const command = `bash "${scriptPath}" "${inputPath}" "${OUTPUT_DIR}"`;
     console.log('> Ejecutando Audiveris con configuración personalizada completa');
+    console.log('> Comando:', command);
 
-    const child = exec(command, { cwd: '/app', shell: true });
+    const child = exec(command, { 
+      cwd: '/app', 
+      shell: true,
+      env: {
+        ...process.env,
+        JAVA_HOME: '/usr/local/openjdk-21',
+        LD_LIBRARY_PATH: '/usr/lib/x86_64-linux-gnu:/usr/lib:/usr/local/lib:/tmp/javacpp-cache'
+      }
+    });
 
     child.stdout.on('data', (data) => console.log(`[AUDIVERIS] ${data}`));
     child.stderr.on('data', (data) => console.error(`[AUDIVERIS][ERR] ${data}`));

@@ -42,7 +42,7 @@ RUN npm install --production
 COPY . .
 
 # Hacer ejecutables los scripts
-RUN chmod +x /app/*.sh
+RUN chmod +x /app/*.sh && chmod +x /app/audiveris-5.4/*.sh
 
 # Crear directorio de cache para JavaCPP
 RUN mkdir -p /tmp/javacpp-cache
@@ -50,5 +50,5 @@ RUN mkdir -p /tmp/javacpp-cache
 # Exponer puerto
 EXPOSE 4000
 
-# Comando por defecto solucionando JNI y iniciando
-CMD ["sh", "-c", "./fix-jni-libs.sh && ./init-libs.sh && npm start"]
+# Comando por defecto solucionando JNI, permisos y iniciando
+CMD ["sh", "-c", "./fix-jni-libs.sh && ./fix-permissions.sh && ./init-libs.sh && npm start"]
