@@ -11,7 +11,8 @@ echo "📁 Directorio de salida: $OUTPUT_DIR"
 # Configurar variables de entorno
 export JAVA_HOME=/usr/local/openjdk-21
 export PATH="$JAVA_HOME/bin:$PATH"
-export LD_LIBRARY_PATH="/tmp/javacpp-cache:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="/tmp/javacpp-cache:/usr/lib/x86_64-linux-gnu:/usr/lib:$LD_LIBRARY_PATH"
+export JAVA_LIBRARY_PATH="/tmp/javacpp-cache:/usr/lib/x86_64-linux-gnu:/usr/lib"
 export JAVACPP_CACHE_DIR=/tmp/javacpp-cache
 export JAVACPP_PLATFORM=linux-x86_64
 export JAVACPP_VERBOSE=1
@@ -66,14 +67,15 @@ java \
 echo "🔍 Archivos JNI en cache tras precarga (si existen):"
 find /tmp/javacpp-cache -type f -name "libjni*.so*" | head -20 || true
 
-# Ejecutar Audiveris con configuración que usa librerías del sistema y JavaCPP
+# Ejecutar Audiveris con configuración que usa librerías JNI descargadas
 java \
-  -Djava.library.path="/usr/lib/x86_64-linux-gnu:/usr/lib:/tmp/javacpp-cache" \
+  -Djava.library.path="/tmp/javacpp-cache:/usr/lib/x86_64-linux-gnu:/usr/lib" \
   -Djavacpp.platform=linux-x86_64 \
   -Djavacpp.cache.dir=/tmp/javacpp-cache \
   -Djavacpp.verbose=true \
   -Djavacpp.skip=false \
   -Djava.awt.headless=true \
+  -Djna.library.path="/tmp/javacpp-cache:/usr/lib/x86_64-linux-gnu:/usr/lib" \
   -cp "lib/*" \
   Audiveris \
   -batch "$INPUT_FILE" \
