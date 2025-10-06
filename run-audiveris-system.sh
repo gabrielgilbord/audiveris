@@ -21,14 +21,11 @@ echo "📁 Archivo de entrada: $INPUT_FILE"
 echo "📁 Directorio de salida: $OUTPUT_DIR"
 echo "🔧 Usando librerías del sistema..."
 
-# Copiar librerías JNI empaquetadas al directorio de cache
-echo "📦 Copiando librerías JNI empaquetadas..."
-if [ -d "/app/jni-libs" ]; then
-    mkdir -p /tmp/javacpp-cache
-    cp /app/jni-libs/*.so* /tmp/javacpp-cache/ 2>/dev/null || echo "⚠️ No se encontraron librerías JNI empaquetadas"
-    echo "✅ Librerías JNI copiadas a /tmp/javacpp-cache/"
-    ls -la /tmp/javacpp-cache/*.so* 2>/dev/null || echo "⚠️ No hay librerías .so en cache"
-fi
+# Verificar librerías JNI en cache
+echo "📦 Verificando librerías JNI en cache..."
+mkdir -p /tmp/javacpp-cache
+echo "📁 Contenido del cache:"
+ls -la /tmp/javacpp-cache/*.so* 2>/dev/null || echo "⚠️ No hay librerías .so en cache"
 
 # Ejecutar Audiveris CON JavaCPP, usando librerías JNI empaquetadas
 java \

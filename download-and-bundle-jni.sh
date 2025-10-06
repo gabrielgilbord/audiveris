@@ -47,8 +47,18 @@ find /tmp/javacpp-temp -path "*/linux-x86_64/*" -name "libjnitesseract*.so*" -ex
 # Copiar también las dependencias nativas
 find /tmp/javacpp-temp -path "*/linux-x86_64/*" -name "*.so*" -exec cp {} /app/jni-libs/ \;
 
-# Hacer ejecutables las librerías
-chmod +x /app/jni-libs/*.so*
+echo "🔍 Verificando qué se extrajo..."
+find /tmp/javacpp-temp -name "*.so*" | head -10
+echo "🔍 Verificando directorio linux-x86_64..."
+find /tmp/javacpp-temp -path "*/linux-x86_64/*" | head -10
+
+# Hacer ejecutables las librerías (solo si existen)
+if ls /app/jni-libs/*.so* 1> /dev/null 2>&1; then
+    chmod +x /app/jni-libs/*.so*
+    echo "✅ Librerías .so encontradas y hechas ejecutables"
+else
+    echo "⚠️ No se encontraron librerías .so para hacer ejecutables"
+fi
 
 echo "📁 Librerías JNI empaquetadas:"
 ls -la /app/jni-libs/
