@@ -67,15 +67,25 @@ java \
 echo "🔍 Archivos JNI en cache tras precarga (si existen):"
 find /tmp/javacpp-cache -type f -name "libjni*.so*" | head -20 || true
 
-# Ejecutar Audiveris con configuración que usa librerías JNI descargadas
+# Ejecutar Audiveris con configuración personalizada completa
+echo "[AUDIVERIS] 🚀 Ejecutando Audiveris con configuración personalizada..."
+echo "[AUDIVERIS] 📁 Archivo: $INPUT_FILE"
+echo "[AUDIVERIS] 📁 Salida: $OUTPUT_DIR"
+
+# Verificar librerías disponibles
+echo "[AUDIVERIS] 🔍 Verificando librerías..."
+ldconfig -p | grep -E "(tesseract|lept)" || echo "[AUDIVERIS] ⚠️ Librerías no encontradas en ldconfig"
+
 java \
-  -Djava.library.path="/tmp/javacpp-cache:/usr/lib/x86_64-linux-gnu:/usr/lib" \
+  -Djava.library.path="/usr/lib/x86_64-linux-gnu:/usr/lib:/usr/local/lib:/tmp/javacpp-cache" \
   -Djavacpp.platform=linux-x86_64 \
   -Djavacpp.cache.dir=/tmp/javacpp-cache \
   -Djavacpp.verbose=true \
   -Djavacpp.skip=false \
   -Djava.awt.headless=true \
-  -Djna.library.path="/tmp/javacpp-cache:/usr/lib/x86_64-linux-gnu:/usr/lib" \
+  -Djna.library.path="/usr/lib/x86_64-linux-gnu:/usr/lib:/usr/local/lib:/tmp/javacpp-cache" \
+  -Xmx2g \
+  -XX:+UseG1GC \
   -cp "lib/*" \
   Audiveris \
   -batch "$INPUT_FILE" \
